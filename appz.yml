@@ -1,0 +1,49 @@
+app:
+    name: Agentconnector
+    code: AGENTCONNECTOR
+    notify: srswain@ecloudcontrol.com
+    
+build:
+    version: 13.3
+    env: DEV
+    build_file: none
+    output_files: output/*.zip
+    image_template: agentconnector-13.3  
+deploy:
+    context: sranjan1995/DEV
+    type: statefulset
+    replicas: 1
+    port:
+    - 5432
+    - 8006
+    
+volumes:
+  - claim: agentconnector-data
+    mount: /appz/data
+    name: data
+    size: 5Gi
+    mode: ReadWriteOnce
+    class: microk8s-hostpath   
+    
+monitor:
+    notify: srswain@ecloudcontrol.com     
+    
+properties:
+    POSTGRESQL_REPLICATION_MODE: master
+    POSTGRESQL_DATA: /appz/data
+    POSTGRESQL_CONNECTUSER: postgres
+    POSTGRESQL_CONNECTIONDB: postgres
+    POSTGRESQL_PORT: 5432
+    POSTGRESQL_PASSWORD: 
+      vault: POSTGRESQL_PASSWORD
+    POSTGRESQL_SYNCHRONOUS_COMMIT_MODE: on
+    POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS: 1
+    ENABLE_BACKUP_METRIC: 1
+    POSTGRESQL_REP_USER: replica
+    PGPASSWORD: 
+      vault: PGPASSWORD
+    APPUSER_PASSWORD:
+      vault: APPUSER_PASSWORD
+    APPZ_RESTORE_TOKEN: 20200810-1217
+    APPZ_LOAD_TOKEN: 20200810-1217
+    revision : 0
